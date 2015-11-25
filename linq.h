@@ -2,10 +2,54 @@
 
 namespace hmc
 {
+	template<typename TIterator>
+	using iterator_type = decltype(**(TIterator*)0);
+
 	template<typename TIterator,typename TFunction>
 	class where_iterator
 	{
+		typedef where_iterator<TIterator, TFunction> TSelf;
 
+	private:
+		TIterator iterator;
+		TIterator end;
+		TFunction f;
+
+	public:
+		where_iterator(const TIterator& i, const TIterator& e, const TFunction& _f) :
+			iterator(i), end(e), f(_f)
+		{
+			while (iterator != end && !f(*iterator))
+			{
+				++iterator;
+			}
+		}
+
+		TSelf& operator++()
+		{
+			if (iterator == end) return *this;
+			++iterator;
+			while (iterator != end && !f(*iterator))
+			{
+				++iterator;
+			}
+			return *this;
+		}
+
+		iterator_type<TIterator> operator*()const
+		{
+			return *iterator;
+		}
+
+		bool operator==(const TSelf& it)const
+		{
+			return it.iterator == iterator;
+		}
+
+		bool operator!=(const TSelf& it)const
+		{
+			return iterator != it.iterator;
+		}
 	};
 
 	template<typename TIterator,typename TFunction>
@@ -24,13 +68,18 @@ namespace hmc
 
 		TSelf& operator++()
 		{
-			iterator++;
+			++iterator;
 			return *this;
 		}
 
 		auto operator*()const->decltype(f(*iterator))
 		{
 			return f(*iterator);
+		}
+
+		bool operator==(const TSelf& it)const
+		{
+			return it.iterator == iterator;
 		}
 
 		bool operator!=(const TSelf& it)const
@@ -67,6 +116,15 @@ namespace hmc
 			return linq_enumerable<select_iterator<TIterator, TFunction>>(
 				select_iterator<TIterator,TFunction>(_begin,f),
 				select_iterator<TIterator,TFunction>(_end,f)
+				);
+		}
+
+		template<typename TFunction>
+		auto where(const TFunction& f)const->linq_enumerable<where_iterator<TIterator,TFunction>>
+		{
+			return linq_enumerable<where_iterator<TIterator, TFunction>>(
+				where_iterator<TIterator, TFunction>(_begin,_end,f),
+				where_iterator<TIterator, TFunction>(_end,_end,f)
 				);
 		}
 	};

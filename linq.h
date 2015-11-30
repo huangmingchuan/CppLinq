@@ -3,7 +3,7 @@
 namespace hmc
 {
 	template<typename TIterator>
-	using iterator_type = decltype(**(TIterator*)0);
+	using iterator_type = decltype(**(TIterator*)nullptr);
 
 	template<typename TIterator,typename TFunction>
 	class where_iterator

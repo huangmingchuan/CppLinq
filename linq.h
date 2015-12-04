@@ -139,6 +139,48 @@ namespace hmc
 	};
 
 	template<typename TIterator>
+	class skip_iterator
+	{
+		typedef skip_iterator<TIterator> TSelf;
+
+	private:
+		TIterator iterator;
+		TIterator end;
+		int count;
+
+	public:
+		skip_iterator(const TIterator& i, const TIterator& e, int c) :
+			iterator(i), end(e), count(c)
+		{
+			while (count-- > 0)
+			{
+				++iterator;
+			}
+		}
+
+		iterator_type<TIterator> operator*()const
+		{
+			return *iterator;
+		}
+
+		TSelf& operator++()
+		{
+			++iterator;
+			return *this;
+		}
+
+		bool operator==(const TSelf& it)const
+		{
+			return iterator == it.iterator;
+		}
+
+		bool operator!=(const TSelf& it)const
+		{
+			return iterator != it.iterator;
+		}
+	};
+
+	template<typename TIterator>
 	class linq_enumerable
 	{
 	private:
@@ -183,6 +225,14 @@ namespace hmc
 			return linq_enumerable<take_iterator<TIterator>>(
 				take_iterator<TIterator>(_begin,_end,count),
 				take_iterator<TIterator>(_end,_end,count)
+				);
+		}
+
+		auto skip(int count)const->linq_enumerable<skip_iterator<TIterator>>
+		{
+			return linq_enumerable<skip_iterator<TIterator>>(
+				skip_iterator<TIterator>(_begin,_end,count),
+				skip_iterator<TIterator>(_end,_end,0)
 				);
 		}
 	};

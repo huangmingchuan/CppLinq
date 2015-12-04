@@ -123,4 +123,24 @@ void test()
 
 		assert(std::equal(xs.begin(), xs.end(), q.begin()));
 	}
+	//////////////////////////////////////////////////////////////////
+	// skip
+	//////////////////////////////////////////////////////////////////
+	{
+		vector<int> v = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		auto q = from(v).skip(5);
+
+		vector<int> xs = { 6, 7, 8, 9 };
+
+		assert(std::equal(xs.begin(), xs.end(), q.begin()));
+	}
+
+	{
+		vector<int> v = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		auto q = from(v).skip(0);
+
+		vector<int> xs = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+		assert(std::equal(xs.begin(), xs.end(), q.begin()));
+	}
 }

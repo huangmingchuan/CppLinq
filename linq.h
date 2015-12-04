@@ -89,6 +89,56 @@ namespace hmc
 	};
 
 	template<typename TIterator>
+	class take_iterator
+	{
+		typedef take_iterator<TIterator> TSelf;
+
+	private:
+		TIterator iterator;
+		TIterator end;
+		int count;
+		int current;
+
+	public:
+		take_iterator(const TIterator& i, const TIterator& e, int c) :
+			iterator(i), end(e), count(c), current(0)
+		{
+			if (current == count)
+			{
+				iterator = end;
+			}
+		}
+
+		iterator_type<TIterator> operator*()const
+		{
+			return *iterator;
+		}
+
+		TSelf& operator++()
+		{
+			if (++current == count)
+			{
+				iterator = end;
+			}
+			else
+			{
+				++iterator;
+			}
+			return *this;
+		}
+
+		bool operator==(const TSelf& it)const
+		{
+			return iterator == it.iterator;
+		}
+
+		bool operator!=(const TSelf& it)const
+		{
+			return iterator != it.iterator;
+		}
+	};
+
+	template<typename TIterator>
 	class linq_enumerable
 	{
 	private:
@@ -125,6 +175,14 @@ namespace hmc
 			return linq_enumerable<where_iterator<TIterator, TFunction>>(
 				where_iterator<TIterator, TFunction>(_begin,_end,f),
 				where_iterator<TIterator, TFunction>(_end,_end,f)
+				);
+		}
+
+		auto take(int count)const->linq_enumerable<take_iterator<TIterator>>
+		{
+			return linq_enumerable<take_iterator<TIterator>>(
+				take_iterator<TIterator>(_begin,_end,count),
+				take_iterator<TIterator>(_end,_end,count)
 				);
 		}
 	};

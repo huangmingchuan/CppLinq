@@ -143,4 +143,24 @@ void test()
 
 		assert(std::equal(xs.begin(), xs.end(), q.begin()));
 	}
+	//////////////////////////////////////////////////////////////////
+	// take_while
+	//////////////////////////////////////////////////////////////////
+	{
+		vector<int> v = { 1, 2, 3, 4, 5, 1, 6, 7, 8, 9 };
+		auto q = from(v).take_while([](int x) { return x != 6 ; });
+
+		vector<int> xs = { 1, 2, 3, 4, 5, 1 };
+
+		assert(std::equal(xs.begin(), xs.end(), q.begin()));
+	}
+
+	{
+		vector<int> v = { 1, 2, 3, 4, 5, 1, 6, 7, 8, 9 };
+		auto q = from(v).take_while([](int x) { return x * 2 < 10; });
+
+		vector<int> xs = { 1, 2, 3, 4};
+
+		assert(std::equal(xs.begin(), xs.end(), q.begin()));
+	}
 }

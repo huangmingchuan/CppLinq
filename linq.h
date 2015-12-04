@@ -180,6 +180,52 @@ namespace hmc
 		}
 	};
 
+	template<typename TIterator,typename TFunction>
+	class take_while_iterator
+	{
+		typedef take_while_iterator<TIterator, TFunction> TSelf;
+
+	private:
+		TIterator iterator;
+		TIterator end;
+		TFunction f;
+
+	public:
+		take_while_iterator(const TIterator& i, const TIterator& e, const TFunction& _f) :
+			iterator(i), end(e), f(_f)
+		{
+			if (iterator != end && !f(*iterator))
+			{
+				iterator = end;
+			}
+		}
+
+		TSelf& operator++()
+		{
+			++iterator;
+			if (!f(*iterator))
+			{
+				iterator = end;
+			}
+			return *this;
+		}
+
+		iterator_type<TIterator> operator*()const
+		{
+			return *iterator;
+		}
+
+		bool operator==(const TSelf& it)const
+		{
+			return iterator == it.iterator;
+		}
+
+		bool operator!=(const TSelf& it)const
+		{
+			return iterator != it.iterator;
+		}
+	};
+
 	template<typename TIterator>
 	class linq_enumerable
 	{
@@ -233,6 +279,15 @@ namespace hmc
 			return linq_enumerable<skip_iterator<TIterator>>(
 				skip_iterator<TIterator>(_begin,_end,count),
 				skip_iterator<TIterator>(_end,_end,0)
+				);
+		}
+
+		template<typename TFunction>
+		auto take_while(const TFunction& f)->linq_enumerable<take_while_iterator<TIterator, TFunction>>
+		{
+			return linq_enumerable<take_while_iterator<TIterator, TFunction>>(
+				take_while_iterator<TIterator, TFunction>(_begin,_end,f),
+				take_while_iterator<TIterator, TFunction>(_end,_end,f)
 				);
 		}
 	};

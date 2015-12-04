@@ -152,7 +152,7 @@ namespace hmc
 		skip_iterator(const TIterator& i, const TIterator& e, int c) :
 			iterator(i), end(e), count(c)
 		{
-			while (count-- > 0)
+			while (iterator != end && count-- > 0)
 			{
 				++iterator;
 			}
@@ -213,6 +213,48 @@ namespace hmc
 		iterator_type<TIterator> operator*()const
 		{
 			return *iterator;
+		}
+
+		bool operator==(const TSelf& it)const
+		{
+			return iterator == it.iterator;
+		}
+
+		bool operator!=(const TSelf& it)const
+		{
+			return iterator != it.iterator;
+		}
+	};
+
+	template<typename TIterator,typename TFunction>
+	class skip_while_iterator
+	{
+		typedef skip_while_iterator<TIterator, TFunction> TSelf;
+
+	private:
+		TIterator iterator;
+		TIterator end;
+		TFunction f;
+
+	public:
+		skip_while_iterator(const TIterator& i, const TIterator& e, TFunction _f) :
+			iterator(i), end(e), f(_f)
+		{
+			while (iterator != end && f(*iterator))
+			{
+				++iterator;
+			}
+		}
+
+		iterator_type<TIterator> operator*()const
+		{
+			return *iterator;
+		}
+
+		TSelf& operator++()
+		{
+			++iterator;
+			return *this;
 		}
 
 		bool operator==(const TSelf& it)const
@@ -288,6 +330,15 @@ namespace hmc
 			return linq_enumerable<take_while_iterator<TIterator, TFunction>>(
 				take_while_iterator<TIterator, TFunction>(_begin,_end,f),
 				take_while_iterator<TIterator, TFunction>(_end,_end,f)
+				);
+		}
+
+		template<typename TFunction>
+		auto skip_while(const TFunction& f)->linq_enumerable<skip_while_iterator<TIterator, TFunction>>
+		{
+			return linq_enumerable<skip_while_iterator<TIterator, TFunction>>(
+				skip_while_iterator<TIterator, TFunction>(_begin, _end, f),
+				skip_while_iterator<TIterator, TFunction>(_end, _end, f)
 				);
 		}
 	};

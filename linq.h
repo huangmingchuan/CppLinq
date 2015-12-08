@@ -14,12 +14,12 @@ namespace hmc
 	{
 	public:
 		std::string message;
-		
+
 		linq_exception(const std::string& m) :message(m)
 		{}
 	};
 
-	template<typename TIterator,typename TFunction>
+	template<typename TIterator, typename TFunction>
 	class where_iterator
 	{
 		typedef where_iterator<TIterator, TFunction> TSelf;
@@ -66,11 +66,11 @@ namespace hmc
 		}
 	};
 
-	template<typename TIterator,typename TFunction>
+	template<typename TIterator, typename TFunction>
 	class select_iterator
 	{
 		typedef select_iterator<TIterator, TFunction> TSelf;
-		
+
 	private:
 		TIterator iterator;
 		TFunction f;
@@ -194,7 +194,7 @@ namespace hmc
 		}
 	};
 
-	template<typename TIterator,typename TFunction>
+	template<typename TIterator, typename TFunction>
 	class take_while_iterator
 	{
 		typedef take_while_iterator<TIterator, TFunction> TSelf;
@@ -240,7 +240,7 @@ namespace hmc
 		}
 	};
 
-	template<typename TIterator,typename TFunction>
+	template<typename TIterator, typename TFunction>
 	class skip_while_iterator
 	{
 		typedef skip_while_iterator<TIterator, TFunction> TSelf;
@@ -310,33 +310,33 @@ namespace hmc
 		auto select(const TFunction& f)const->linq_enumerable<select_iterator<TIterator, TFunction>>
 		{
 			return linq_enumerable<select_iterator<TIterator, TFunction>>(
-				select_iterator<TIterator,TFunction>(_begin,f),
-				select_iterator<TIterator,TFunction>(_end,f)
+				select_iterator<TIterator, TFunction>(_begin, f),
+				select_iterator<TIterator, TFunction>(_end, f)
 				);
 		}
 
 		template<typename TFunction>
-		auto where(const TFunction& f)const->linq_enumerable<where_iterator<TIterator,TFunction>>
+		auto where(const TFunction& f)const->linq_enumerable<where_iterator<TIterator, TFunction>>
 		{
 			return linq_enumerable<where_iterator<TIterator, TFunction>>(
-				where_iterator<TIterator, TFunction>(_begin,_end,f),
-				where_iterator<TIterator, TFunction>(_end,_end,f)
+				where_iterator<TIterator, TFunction>(_begin, _end, f),
+				where_iterator<TIterator, TFunction>(_end, _end, f)
 				);
 		}
 
 		auto take(int count)const->linq_enumerable<take_iterator<TIterator>>
 		{
 			return linq_enumerable<take_iterator<TIterator>>(
-				take_iterator<TIterator>(_begin,_end,count),
-				take_iterator<TIterator>(_end,_end,count)
+				take_iterator<TIterator>(_begin, _end, count),
+				take_iterator<TIterator>(_end, _end, count)
 				);
 		}
 
 		auto skip(int count)const->linq_enumerable<skip_iterator<TIterator>>
 		{
 			return linq_enumerable<skip_iterator<TIterator>>(
-				skip_iterator<TIterator>(_begin,_end,count),
-				skip_iterator<TIterator>(_end,_end,0)
+				skip_iterator<TIterator>(_begin, _end, count),
+				skip_iterator<TIterator>(_end, _end, 0)
 				);
 		}
 
@@ -344,8 +344,8 @@ namespace hmc
 		auto take_while(const TFunction& f)->linq_enumerable<take_while_iterator<TIterator, TFunction>>
 		{
 			return linq_enumerable<take_while_iterator<TIterator, TFunction>>(
-				take_while_iterator<TIterator, TFunction>(_begin,_end,f),
-				take_while_iterator<TIterator, TFunction>(_end,_end,f)
+				take_while_iterator<TIterator, TFunction>(_begin, _end, f),
+				take_while_iterator<TIterator, TFunction>(_end, _end, f)
 				);
 		}
 
@@ -389,7 +389,7 @@ namespace hmc
 		}
 
 		template<typename TFunction>
-		auto to_map(const TFunction& f)const->std::map<decltype(f(*(TElement*)nullptr)),TElement>
+		auto to_map(const TFunction& f)const->std::map<decltype(f(*(TElement*)nullptr)), TElement>
 		{
 			std::map<decltype(f(*(TElement*)nullptr)), TElement> m;
 			for (auto it = _begin; it != _end; ++it)
@@ -468,6 +468,49 @@ namespace hmc
 				++counter;
 			}
 			return counter;
+		}
+
+		template<typename TFunction>
+		TElement aggregate(const TFunction& f)const
+		{
+			if (empty()) throw linq_exception("Failed to get a value from an empty collection");
+			auto it = _begin;
+			auto result = *it;
+
+			while (++it != _end)
+			{
+				result = f(result, *it);
+			}
+			return result;
+		}
+
+		TElement sum()const
+		{
+			return aggregate([](const TElement& a, const TElement& b) { return a + b; });
+		}
+
+		TElement max()const
+		{
+			return aggregate([](const TElement& a, const TElement& b) { return a < b ? b : a; });
+		}
+
+		TElement min()const
+		{
+			return aggregate([](const TElement& a, const TElement& b) { return a < b ? a : b; });
+		}
+
+		template<typename TResult>
+		TResult average()const
+		{
+			if (empty()) throw linq_exception("Failed to get a value from an empty collection");
+			TResult sum = 0;
+			int counter = 0;
+			for (auto it = _begin; it != _end; ++it)
+			{
+				sum += (TResult)*it;
+				++counter;
+			}
+			return sum / counter;
 		}
 	};
 

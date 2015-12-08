@@ -244,7 +244,7 @@ void test()
 			assert(false);
 		}
 		catch (const linq_exception&) {}
-		
+
 		try
 		{
 			from(a).element_at(6);
@@ -258,5 +258,30 @@ void test()
 			assert(false);
 		}
 		catch (const linq_exception&) {}
+	}
+	//////////////////////////////////////////////////////////////////
+	// count、sum、min、max、average、aggregate
+	//////////////////////////////////////////////////////////////////
+	{
+		int a[] = { 1, 2, 3, 4, 6 };
+		int b[] = { 1 };
+		vector<int> c;
+
+		assert(from(a).count() == 5);
+		assert(from(b).count() == 1);
+		assert(from(c).count() == 0);
+
+		assert(from(a).sum() == 16);
+		assert(from(b).sum() == 1);
+		
+		assert(from(a).max() == 6);
+
+		assert(from(a).min() == 1);
+
+		assert(from(a).average<int>() == 3);
+		assert(from(a).average<double>() == 3.2);
+
+		assert(from(a).aggregate([](int a, int b) { return a + b; }) == 16);
+		assert(from(a).aggregate([](int a, int b) { return a * b; }) == 144);
 	}
 }

@@ -413,6 +413,39 @@ namespace hmc
 			return *_begin;
 		}
 
+		TElement first_or_default(const TElement& value)const
+		{
+			if (empty())
+			{
+				return value;
+			}
+			return *_begin;
+		}
+
+		TElement last()const
+		{
+			if (empty())
+			{
+				throw linq_exception("Failed to get a value from an empty collection");
+			}
+			TElement result;
+			for (auto it = _begin; it != _end; ++it)
+			{
+				result = *it;
+			}
+			return result;
+		}
+
+		TElement last_or_default(const TElement& value)const
+		{
+			auto result = value;
+			for (auto it = _begin; it != _end; ++it)
+			{
+				result = *it;
+			}
+			return result;
+		}
+
 		int count()const
 		{
 			int counter = 0;

@@ -215,7 +215,7 @@ void test()
 		assert(std::equal(ys.begin(), ys.end(), ms2.begin()));
 	}
 	//////////////////////////////////////////////////////////////////
-	// first_or_default、last、last_or_default、single、single_or_default、element_at
+	// first、first_or_default、last、last_or_default、single、single_or_default、element_at
 	//////////////////////////////////////////////////////////////////
 	{
 		int a[] = { 1, 2, 3, 4, 5 };
@@ -228,5 +228,12 @@ void test()
 			assert(false);
 		}
 		catch (const linq_exception&) {}
+
+		assert(from(a).first_or_default(0) == 1);
+		assert(from(b).first_or_default(0) == 0);
+
+		assert(from(a).last() == 5);
+		assert(from(a).last_or_default(0) == 5);
+		assert(from(b).last_or_default(0) == 0);
 	}
 }

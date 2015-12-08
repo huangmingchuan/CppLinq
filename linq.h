@@ -446,6 +446,20 @@ namespace hmc
 			return result;
 		}
 
+		TElement element_at(int index)const
+		{
+			if (index >= 0)
+			{
+				int counter = 0;
+				for (auto it = _begin; it != _end; ++it)
+				{
+					if (counter == index) return *it;
+					++counter;
+				}
+			}
+			throw linq_exception("Argument out of range: index");
+		}
+
 		int count()const
 		{
 			int counter = 0;

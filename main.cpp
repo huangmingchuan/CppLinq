@@ -235,5 +235,28 @@ void test()
 		assert(from(a).last() == 5);
 		assert(from(a).last_or_default(0) == 5);
 		assert(from(b).last_or_default(0) == 0);
+
+		assert(from(a).element_at(0) == 1);
+		assert(from(a).element_at(4) == 5);
+		try
+		{
+			from(a).element_at(-1);
+			assert(false);
+		}
+		catch (const linq_exception&) {}
+		
+		try
+		{
+			from(a).element_at(6);
+			assert(false);
+		}
+		catch (const linq_exception&) {}
+
+		try
+		{
+			from(b).element_at(0);
+			assert(false);
+		}
+		catch (const linq_exception&) {}
 	}
 }

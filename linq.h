@@ -1,9 +1,21 @@
 #pragma once
+#include <string>
+#include <vector>
+#include <list>
 
 namespace hmc
 {
 	template<typename TIterator>
 	using iterator_type = decltype(**(TIterator*)nullptr);
+
+	class linq_exception
+	{
+	public:
+		std::string message;
+		
+		linq_exception(const std::string& m) :message(m)
+		{}
+	};
 
 	template<typename TIterator,typename TFunction>
 	class where_iterator
@@ -271,6 +283,8 @@ namespace hmc
 	template<typename TIterator>
 	class linq_enumerable
 	{
+		typedef typename std::remove_cv<typename std::remove_reference<iterator_type<TIterator>>::type>::type TElement;
+
 	private:
 		TIterator _begin;
 		TIterator _end;
@@ -340,6 +354,42 @@ namespace hmc
 				skip_while_iterator<TIterator, TFunction>(_begin, _end, f),
 				skip_while_iterator<TIterator, TFunction>(_end, _end, f)
 				);
+		}
+
+		std::vector<TElement> to_vector()const
+		{
+			std::vector<TElement> v;
+			for (auto it = _begin; it != _end; ++it)
+			{
+				v.push_back(*it);
+			}
+			return std::move(v);
+		}
+
+		
+
+		bool empty()const
+		{
+			return _begin == _end;
+		}
+
+		TElement first()const
+		{
+			if (empty())
+			{
+				throw linq_exception("Failed to get a value from an empty collection");
+			}
+			return *_begin;
+		}
+
+		int count()const
+		{
+			int counter = 0;
+			for (auto it = _begin; it != _end; ++it)
+			{
+				++counter;
+			}
+			return counter;
 		}
 	};
 

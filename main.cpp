@@ -184,5 +184,17 @@ void test()
 
 		assert(std::equal(xs.begin(), xs.end(), q.begin()));
 	}
+	//////////////////////////////////////////////////////////////////
+	// to_vector¡¢to_list¡¢to_set¡¢to_map
+	//////////////////////////////////////////////////////////////////
+	{
+		vector<int> xs = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+		auto ys = from(xs).to_vector();
+		 
+		assert(std::equal(xs.begin(), xs.end(), ys.begin()));
+
+	
+	}
 
 }

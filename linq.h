@@ -388,6 +388,17 @@ namespace hmc
 			return std::move(s);
 		}
 
+		template<typename TFunction>
+		auto to_map(const TFunction& f)const->std::map<decltype(f(*(TElement*)nullptr)),TElement>
+		{
+			std::map<decltype(f(*(TElement*)nullptr)), TElement> m;
+			for (auto it = _begin; it != _end; ++it)
+			{
+				m.insert(std::make_pair(f(*it), *it));
+			}
+			return std::move(m);
+		}
+
 		bool empty()const
 		{
 			return _begin == _end;

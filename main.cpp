@@ -191,7 +191,7 @@ void test()
 		vector<int> xs = { 1, 2, 3, 4, 5, 2, 3, 4, 5, 6 };
 
 		auto vs = from(xs).to_vector();
-		 
+
 		assert(std::equal(xs.begin(), xs.end(), vs.begin()));
 
 		auto ls = from(xs).to_list();
@@ -200,8 +200,19 @@ void test()
 
 		vector<int> ys = { 1, 2, 3, 4, 5, 6 };
 		auto ss = from(xs).to_set();
-		
+
 		assert(std::equal(ys.begin(), ys.end(), ss.begin()));// 1 2 3 4 5 6
+
+		auto ms = from(xs).to_map([](int x) { return x; });
+		
+		for (auto i : ms)
+		{
+			cout << i.first << "," << i.second << endl;// 1,1  2,2  3,3  4,4  5,5  6,6
+		}
+
+		auto ms2 = from(ms).select([](pair<int, int> p) { return p.first; });
+
+		assert(std::equal(ys.begin(), ys.end(), ms2.begin()));
 	}
 
 }

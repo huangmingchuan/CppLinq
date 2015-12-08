@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <set>
+#include <map>
 
 namespace hmc
 {
@@ -374,6 +376,16 @@ namespace hmc
 				l.push_back(*it);
 			}
 			return std::move(l);
+		}
+
+		std::set<TElement> to_set()const
+		{
+			std::set<TElement> s;
+			for (auto it = _begin; it != _end; ++it)
+			{
+				s.insert(*it);
+			}
+			return std::move(s);
 		}
 
 		bool empty()const

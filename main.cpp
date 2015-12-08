@@ -188,15 +188,20 @@ void test()
 	// to_vector¡¢to_list¡¢to_set¡¢to_map
 	//////////////////////////////////////////////////////////////////
 	{
-		vector<int> xs = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		vector<int> xs = { 1, 2, 3, 4, 5, 2, 3, 4, 5, 6 };
 
-		auto ys = from(xs).to_vector();
+		auto vs = from(xs).to_vector();
 		 
-		assert(std::equal(xs.begin(), xs.end(), ys.begin()));
+		assert(std::equal(xs.begin(), xs.end(), vs.begin()));
 
-		auto ys2 = from(xs).to_list();
+		auto ls = from(xs).to_list();
 
-		assert(std::equal(xs.begin(), xs.end(), ys2.begin()));
+		assert(std::equal(xs.begin(), xs.end(), ls.begin()));
+
+		vector<int> ys = { 1, 2, 3, 4, 5, 6 };
+		auto ss = from(xs).to_set();
+		
+		assert(std::equal(ys.begin(), ys.end(), ss.begin()));// 1 2 3 4 5 6
 	}
 
 }

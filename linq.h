@@ -366,7 +366,15 @@ namespace hmc
 			return std::move(v);
 		}
 
-		
+		std::list<TElement> to_list()const
+		{
+			std::list<TElement> l;
+			for (auto it = _begin; it != _end; ++it)
+			{
+				l.push_back(*it);
+			}
+			return std::move(l);
+		}
 
 		bool empty()const
 		{

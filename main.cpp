@@ -194,7 +194,9 @@ void test()
 		 
 		assert(std::equal(xs.begin(), xs.end(), ys.begin()));
 
-	
+		auto ys2 = from(xs).to_list();
+
+		assert(std::equal(xs.begin(), xs.end(), ys2.begin()));
 	}
 
 }

@@ -46,9 +46,9 @@ void test()
 	{
 		vector<int> v = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		auto q = from(v).select([](int x) { return x + 10; });
-		
+
 		vector<int> xs = { 11, 12, 13, 14, 15, 16, 17, 18, 19 };
-		
+
 		assert(std::equal(xs.begin(), xs.end(), q.begin()));
 	}
 
@@ -148,7 +148,7 @@ void test()
 	//////////////////////////////////////////////////////////////////
 	{
 		vector<int> v = { 1, 2, 3, 4, 5, 1, 6, 7, 8, 9 };
-		auto q = from(v).take_while([](int x) { return x != 6 ; });
+		auto q = from(v).take_while([](int x) { return x != 6; });
 
 		vector<int> xs = { 1, 2, 3, 4, 5, 1 };
 
@@ -159,7 +159,7 @@ void test()
 		vector<int> v = { 1, 2, 3, 4, 5, 1, 6, 7, 8, 9 };
 		auto q = from(v).take_while([](int x) { return x * 2 < 10; });
 
-		vector<int> xs = { 1, 2, 3, 4};
+		vector<int> xs = { 1, 2, 3, 4 };
 
 		assert(std::equal(xs.begin(), xs.end(), q.begin()));
 	}
@@ -204,7 +204,7 @@ void test()
 		assert(std::equal(ys.begin(), ys.end(), ss.begin()));// 1 2 3 4 5 6
 
 		auto ms = from(xs).to_map([](int x) { return x; });
-		
+
 		for (auto i : ms)
 		{
 			cout << i.first << "," << i.second << endl;// 1,1  2,2  3,3  4,4  5,5  6,6
@@ -214,5 +214,19 @@ void test()
 
 		assert(std::equal(ys.begin(), ys.end(), ms2.begin()));
 	}
+	//////////////////////////////////////////////////////////////////
+	// first_or_default、last、last_or_default、single、single_or_default、element_at
+	//////////////////////////////////////////////////////////////////
+	{
+		int a[] = { 1, 2, 3, 4, 5 };
+		vector<int> b;
 
+		assert(from(a).first() == 1);
+		try
+		{
+			from(b).first();
+			assert(false);
+		}
+		catch (const linq_exception&) {}
+	}
 }

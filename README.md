@@ -2,7 +2,7 @@
 用 C++ 11 实现的 LINQ to Object，这里有篇粗浅的[文章](http://www.cnblogs.com/huangmingchuan/p/4988821.html)来介绍：
 
 ###一个例子：
-```
+```C++
 class person
 {
     string name;

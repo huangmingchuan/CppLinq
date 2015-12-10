@@ -4,11 +4,18 @@
 #include <list>
 #include <set>
 #include <map>
+#include <memory>
 
 namespace hmc
 {
 	template<typename TIterator>
 	using iterator_type = decltype(**(TIterator*)nullptr);
+
+	template<typename T>
+	class linq;
+
+	template<typename TElement>
+	linq<TElement> from_values(std::shared_ptr<std::vector<TElement>> p);
 
 	class linq_exception
 	{
@@ -17,6 +24,85 @@ namespace hmc
 
 		linq_exception(const std::string& m) :message(m)
 		{}
+	};
+
+	template<typename T>
+	class hide_type_iterator
+	{
+	private:
+		class iterator_interface
+		{
+			typedef iterator_interface TSelf;
+		public:
+			virtual std::shared_ptr<TSelf> next() = 0;
+			virtual T deref() = 0;
+			virtual bool equals(const std::shared_ptr<TSelf>& p) = 0;
+		};
+
+		template<typename TIterator>
+		class iterator_implement : public iterator_interface
+		{
+			typedef iterator_implement<TIterator> TSelf;
+		private:
+			TIterator iterator;
+
+		public:
+			iterator_implement(const TIterator& it) :iterator(it) {}
+
+			std::shared_ptr<iterator_interface> next()override
+			{
+				TIterator t = iterator;
+				++t;
+				return std::make_shared<TSelf>(t);
+			}
+
+			T deref()override
+			{
+				return *iterator;
+			}
+
+			bool equals(const std::shared_ptr<iterator_interface>& p)override
+			{
+				auto impl = std::dynamic_pointer_cast<TSelf>(p);
+				return impl && (iterator == impl->iterator);
+			}
+		};
+		
+		typedef hide_type_iterator<T> TSelf;
+
+	};
+
+	template<typename T>
+	class storate_iterator
+	{
+		typedef storate_iterator<T> TSelf;
+
+	private:
+		typename std::vector<T>::iterator iterator;
+
+	public:
+		storate_iterator(const typename std::vector<T>::iterator& it) :iterator(it) {}
+
+		TSelf& operator++()
+		{
+			++iterator;
+			return *this;
+		}
+
+		T operator*()const
+		{
+			return *iterator;
+		}
+
+		bool operator==(const TSelf& it)const
+		{
+			return iterator == it.iterator;
+		}
+
+		bool operator!=(const TSelf& it)const
+		{
+			return iterator != it.iterator;
+		}
 	};
 
 	template<typename TIterator, typename TFunction>
@@ -512,11 +598,61 @@ namespace hmc
 			}
 			return sum / counter;
 		}
+
+
+
+		template<typename TFunction>
+		auto group_by(const TFunction& keySelector)->linq<std::pair<decltype(keySelector(*(TElement*)nullptr)), linq<TElement>>>
+		{
+			typedef decltype(keySelector(*(TElement*)nullptr)) TKey;
+			typedef std::vector<TElement> TValueVector;
+			typedef std::shared_ptr<TValueVector> TValueVectorPtr;
+
+			std::map<TKey, TValueVectorPtr> map;
+			for (auto it = _begin; it != _end; ++it)
+			{
+				auto value = *it;
+				auto key = keySelector(value);
+				auto it2 = map.find(key);
+				if (it2 == map.end())
+				{
+					auto xs = std::make_shared<TValueVector>();
+					xs->push_back(value);
+					map.insert(std::make_pair(key, xs));
+				}
+				else
+				{
+					it2->second->push_back(value);
+				}
+			}
+
+			auto result = std::make_shared<std::vector<std::pair<TKey, linq<TElement>>>>();
+			for (auto p : map)
+			{
+				result->push_back(std::pair<TKey, linq<TElement>>(p.first, from_values(p.second)));
+			}
+			return from_values(result);
+		}
 	};
+
+	template<typename TElement>
+	linq<TElement> from_values(std::shared_ptr<std::vector<TElement>> p)
+	{
+		return linq_enumerable<storate_iterator<TElement>>(
+			storate_iterator<TElement>(p->begin()),
+			storate_iterator<TElement>(p->end())
+			);
+	}
 
 	template<typename TContainer>
 	auto from(const TContainer& c)->linq_enumerable<decltype(std::begin(c))>
 	{
 		return linq_enumerable<decltype(std::begin(c))>(std::begin(c), std::end(c));
 	}
+
+	template<typename T>
+	class linq : linq_enumerable<>
+	{
+
+	};
 }

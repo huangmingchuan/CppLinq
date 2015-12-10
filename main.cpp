@@ -3,6 +3,7 @@
 #include <iostream>
 #include <assert.h>
 #include <algorithm>
+#include <memory>
 
 using namespace std;
 using namespace hmc;
@@ -273,7 +274,7 @@ void test()
 
 		assert(from(a).sum() == 16);
 		assert(from(b).sum() == 1);
-		
+
 		assert(from(a).max() == 6);
 
 		assert(from(a).min() == 1);
@@ -283,5 +284,17 @@ void test()
 
 		assert(from(a).aggregate([](int a, int b) { return a + b; }) == 16);
 		assert(from(a).aggregate([](int a, int b) { return a * b; }) == 144);
+	}
+	//////////////////////////////////////////////////////////////////
+	// from_values¡¢linq<T>
+	//////////////////////////////////////////////////////////////////
+	{
+		std::vector<int> x = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		auto p = std::make_shared<std::vector<int>>(x);
+		
+		/*for (auto i : from_values(p))
+		{
+			cout << i << endl;
+		}*/
 	}
 }

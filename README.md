@@ -13,14 +13,21 @@ class pet
     string name;
     person owner;
 };
+person fek = { "尔康, 福" };
 
-person magnus = { "Hedlund, Magnus" };
-person terry = { "Adams, Terry" };
-person charlotte = { "Weiss, Charlotte" };
-person persons[] = { magnus, terry, charlotte };
-pet barley = { "Barley", terry };
-pet boots = { "Boots", terry };
-pet whiskers = { "Whiskers", charlotte };
-pet daisy = { "Daisy", magnus };
-pet pets[] = { barley, boots, whiskers, daisy };
+person ylc = { "良辰, 叶" };
+person hmj = { "美景, 花" };
+person lks = { "看山, 刘" };
+person lat = { "傲天, 龙" };
+person persons[] = { ylc, hmj, lks, lat};
+
+pet dog = { "斯派克", ylc };
+pet cat = { "汤姆", ylc };
+pet mouse = { "杰瑞", hmj };
+pet bird = { "愤怒的小鸟", lks };
+
+pet pig = { "风口上的猪", fek };
+pet pets[] = { dog, cat, mouse, bird, pig };
 ```
+
+

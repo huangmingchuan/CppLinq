@@ -200,16 +200,11 @@ void test()
 		assert(std::equal(xs.begin(), xs.end(), ls.begin()));
 
 		vector<int> ys = { 1, 2, 3, 4, 5, 6 };
-		auto ss = from(xs).to_set();
+		auto ss = from(xs).to_set();// 1 2 3 4 5 6
 
-		assert(std::equal(ys.begin(), ys.end(), ss.begin()));// 1 2 3 4 5 6
+		assert(std::equal(ys.begin(), ys.end(), ss.begin()));
 
-		auto ms = from(xs).to_map([](int x) { return x; });
-
-		for (auto i : ms)
-		{
-			cout << i.first << "," << i.second << endl;// 1,1  2,2  3,3  4,4  5,5  6,6
-		}
+		auto ms = from(xs).to_map([](int x) { return x; });// 1,1  2,2  3,3  4,4  5,5  6,6
 
 		auto ms2 = from(ms).select([](pair<int, int> p) { return p.first; });
 
@@ -289,12 +284,18 @@ void test()
 	// from_values¡¢linq<T>
 	//////////////////////////////////////////////////////////////////
 	{
-		std::vector<int> x = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-		auto p = std::make_shared<std::vector<int>>(x);
-		
-		/*for (auto i : from_values(p))
+		int sum = 0;
+		for (auto i : from_values({ 1, 2, 3, 4, 5 }))
 		{
-			cout << i << endl;
-		}*/
+			sum += i;
+		}
+		assert(sum == 15);
+
+		linq<int> y = from_values({ 1, 2, 3, 4, 5 })
+			.where([](int x) { return x % 2 == 0; })
+			.select([](int x) { return x * x; });
+
+		std::vector<int> x = { 4, 16 };
+		assert(std::equal(x.begin(), x.end(), y.begin()));
 	}
 }

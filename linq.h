@@ -67,21 +67,50 @@ namespace hmc
 				return impl && (iterator == impl->iterator);
 			}
 		};
-		
+
 		typedef hide_type_iterator<T> TSelf;
 
+		std::shared_ptr<iterator_interface> iterator;
+
+	public:
+		template<typename TIterator>
+		hide_type_iterator(const TIterator& it) :iterator(std::make_shared<iterator_implement<TIterator>>(it)) {}
+
+		TSelf& operator++()
+		{
+			iterator = iterator->next();
+			return *this;
+		}
+
+		T operator*()const
+		{
+			return iterator->deref();
+		}
+
+		bool operator==(const TSelf& it)const
+		{
+			return iterator->equals(it.iterator);
+		}
+
+		bool operator!=(const TSelf& it)const
+		{
+			return !(iterator->equals(it.iterator));
+		}
 	};
 
 	template<typename T>
-	class storate_iterator
+	class storage_iterator
 	{
-		typedef storate_iterator<T> TSelf;
+		typedef storage_iterator<T> TSelf;
 
 	private:
+		std::shared_ptr<std::vector<T>> values;
 		typename std::vector<T>::iterator iterator;
 
 	public:
-		storate_iterator(const typename std::vector<T>::iterator& it) :iterator(it) {}
+		storage_iterator(const std::shared_ptr<std::vector<T>>& v, const typename std::vector<T>::iterator& it) :
+			values(v), iterator(it)
+		{}
 
 		TSelf& operator++()
 		{
@@ -638,9 +667,19 @@ namespace hmc
 	template<typename TElement>
 	linq<TElement> from_values(std::shared_ptr<std::vector<TElement>> p)
 	{
-		return linq_enumerable<storate_iterator<TElement>>(
-			storate_iterator<TElement>(p->begin()),
-			storate_iterator<TElement>(p->end())
+		return linq_enumerable<storage_iterator<TElement>>(
+			storage_iterator<TElement>(p, p->begin()),
+			storage_iterator<TElement>(p, p->end())
+			);
+	}
+
+	template<typename TElement>
+	linq<TElement> from_values(const std::initializer_list<TElement>& ys)
+	{
+		auto xs = std::make_shared<std::vector<TElement>>(ys.begin(), ys.end());
+		return linq_enumerable<storage_iterator<TElement>>(
+			storage_iterator<TElement>(xs, xs->begin()),
+			storage_iterator<TElement>(xs, xs->end())
 			);
 	}
 
@@ -651,8 +690,15 @@ namespace hmc
 	}
 
 	template<typename T>
-	class linq : linq_enumerable<>
+	class linq : public linq_enumerable<hide_type_iterator<T>>
 	{
+	public:
+		linq() {}
 
+		template<typename TIterator>
+		linq(const linq_enumerable<TIterator>& it) : linq_enumerable<hide_type_iterator<T>>(
+			hide_type_iterator<T>(it.begin()),
+			hide_type_iterator<T>(it.end()))
+		{}
 	};
 }

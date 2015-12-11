@@ -298,4 +298,26 @@ void test()
 		std::vector<int> x = { 4, 16 };
 		assert(std::equal(x.begin(), x.end(), y.begin()));
 	}
+	//////////////////////////////////////////////////////////////////
+	// group_by
+	//////////////////////////////////////////////////////////////////
+	{
+		int xs[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		vector<int> ys = { 0, 1 };
+
+		auto g = from(xs)
+			.group_by([](int x) { return x % 2; })
+			.select([](std::pair<int, linq<int>> p) { return p.first; });
+
+		assert(std::equal(ys.begin(), ys.end(), g.begin()));
+
+		vector<int> ys2 = { 6, 8 };
+		auto g2 = from(xs)
+			.group_by([](int x) { return x % 2; })
+			.select([](std::pair<int, linq<int>> p) { return p.second; })
+			.first()
+			.where([](int x) { return x > 5; });
+
+		assert(std::equal(ys2.begin(), ys2.end(), g2.begin()));
+	}
 }

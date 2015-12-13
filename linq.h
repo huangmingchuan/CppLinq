@@ -397,6 +397,62 @@ namespace hmc
 		}
 	};
 
+	template<typename TIterator1, typename TIterator2>
+	class concat_iterator
+	{
+		typedef concat_iterator<TIterator1, TIterator2> TSelf;
+
+	private:
+		TIterator1 iterator1;
+		TIterator1 end1;
+		TIterator2 iterator2;
+		bool first;
+
+	public:
+		concat_iterator(const TIterator1& it1, const TIterator1& e1, const TIterator2& it2) :
+			iterator1(it1), end1(e1), iterator2(it2), first(it1 != e1)
+		{}
+
+		TSelf& operator++()
+		{
+			if (first)
+			{
+				if (++iterator1 == end1)
+				{
+					first = false;
+				}
+			}
+			else
+			{
+				++iterator2;
+			}
+			return *this;
+		}
+
+		iterator_type<TIterator1> operator*()const
+		{
+			return first ? *iterator1 : *iterator2;
+		}
+
+		bool operator==(const TSelf& it)const
+		{
+			if (first != it.first)
+			{
+				return false;
+			}
+			return first ? iterator1 == it.iterator1 : iterator2 == it.iterator2;
+		}
+
+		bool operator!=(const TSelf& it)const
+		{
+			if (first != it.first)
+			{
+				return true;
+			}
+			return first ? iterator1 != it.iterator1 : iterator2 != it.iterator2;
+		}
+	};
+
 	template<typename TIterator>
 	class linq_enumerable
 	{
@@ -456,7 +512,7 @@ namespace hmc
 		}
 
 		template<typename TFunction>
-		auto take_while(const TFunction& f)->linq_enumerable<take_while_iterator<TIterator, TFunction>>
+		auto take_while(const TFunction& f)const->linq_enumerable<take_while_iterator<TIterator, TFunction>>
 		{
 			return linq_enumerable<take_while_iterator<TIterator, TFunction>>(
 				take_while_iterator<TIterator, TFunction>(_begin, _end, f),
@@ -465,11 +521,20 @@ namespace hmc
 		}
 
 		template<typename TFunction>
-		auto skip_while(const TFunction& f)->linq_enumerable<skip_while_iterator<TIterator, TFunction>>
+		auto skip_while(const TFunction& f)const->linq_enumerable<skip_while_iterator<TIterator, TFunction>>
 		{
 			return linq_enumerable<skip_while_iterator<TIterator, TFunction>>(
 				skip_while_iterator<TIterator, TFunction>(_begin, _end, f),
 				skip_while_iterator<TIterator, TFunction>(_end, _end, f)
+				);
+		}
+
+		template<typename TIterator2>
+		auto concat(const linq_enumerable<TIterator2>& e)const->linq_enumerable<concat_iterator<TIterator, TIterator2>>
+		{
+			return linq_enumerable<concat_iterator<TIterator, TIterator2>>(
+				concat_iterator<TIterator, TIterator2>(_begin, _end, e.begin()),
+				concat_iterator<TIterator, TIterator2>(_end, _end, e.end())
 				);
 		}
 
@@ -628,10 +693,8 @@ namespace hmc
 			return sum / counter;
 		}
 
-
-
 		template<typename TFunction>
-		auto group_by(const TFunction& keySelector)->linq<std::pair<decltype(keySelector(*(TElement*)nullptr)), linq<TElement>>>
+		auto group_by(const TFunction& keySelector)const->linq<std::pair<decltype(keySelector(*(TElement*)nullptr)), linq<TElement>>>
 		{
 			typedef decltype(keySelector(*(TElement*)nullptr)) TKey;
 			typedef std::vector<TElement> TValueVector;
@@ -661,6 +724,15 @@ namespace hmc
 				result->push_back(std::pair<TKey, linq<TElement>>(p.first, from_values(p.second)));
 			}
 			return from_values(result);
+		}
+
+		template<typename TFunction>
+		linq<TElement> order_by(const TFunction& f)const
+		{
+			typedef typename std::remove_reference<decltype(f(*(TElement*)nullptr))>::type TKey;
+			return group_by(f)
+				.select([](const std::pair<TKey, linq<TElement>>& p) { return p.second; })
+				.aggregate([](const linq<TElement>& a, const linq<TElement>& b) { return a.concat(b); });
 		}
 	};
 

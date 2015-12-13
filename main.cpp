@@ -321,9 +321,21 @@ void test()
 		assert(std::equal(ys2.begin(), ys2.end(), g2.begin()));
 	}
 	//////////////////////////////////////////////////////////////////
-	//  order_by  
+	//  order_by¡¢concat
 	//////////////////////////////////////////////////////////////////
 	{
+		vector<int> xs = { 1, 2, 3 };
+		vector<int> ys = { 4, 5 };
+		vector<int> zs = { 1, 2, 3, 4, 5 };
 
+		auto ts = from(xs).concat(from(ys));
+
+		assert(std::equal(zs.begin(), zs.end(), ts.begin()));
+
+		vector<int> a = { 5, 3, 1, 4, 8, 2, 7, 6, 9 };
+		vector<int> b = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		auto q = from(a).order_by([](int x) { return x; });
+		
+		assert(std::equal(b.begin(), b.end(), q.begin()));
 	}
 }

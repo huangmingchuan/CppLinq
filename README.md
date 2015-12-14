@@ -3,12 +3,12 @@
 
 ###一个例子：
 ```c++
-class person
+struct person
 {
     string name;
 };
 
-class pet
+struct pet
 {
     string name;
     person owner;

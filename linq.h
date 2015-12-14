@@ -694,7 +694,8 @@ namespace hmc
 		}
 
 		template<typename TFunction>
-		auto group_by(const TFunction& keySelector)const->linq<std::pair<decltype(keySelector(*(TElement*)nullptr)), linq<TElement>>>
+		auto group_by(const TFunction& keySelector)const
+			->linq<std::pair<decltype(keySelector(*(TElement*)nullptr)), linq<TElement>>>
 		{
 			typedef decltype(keySelector(*(TElement*)nullptr)) TKey;
 			typedef std::vector<TElement> TValueVector;
@@ -733,6 +734,32 @@ namespace hmc
 			return group_by(f)
 				.select([](const std::pair<TKey, linq<TElement>>& p) { return p.second; })
 				.aggregate([](const linq<TElement>& a, const linq<TElement>& b) { return a.concat(b); });
+		}
+
+		template<typename TIterator2, typename TFunction1, typename TFunction2, typename TFunction3>
+		auto join(const linq_enumerable<TIterator2>& e,
+			const TFunction1& keySelector1,
+			const TFunction2& keySelector2,
+			const TFunction3& resultSelector)const
+			->linq<decltype(resultSelector(*(TElement*)nullptr, **(TIterator2*)nullptr))>
+		{
+			typedef decltype(resultSelector(*(TElement*)nullptr, **(TIterator2*)nullptr)) TResultValue;
+			auto result = std::make_shared<std::vector<TResultValue>>();
+
+			for (auto it1 = _begin; it1 != _end; ++it1)
+			{
+				auto value1 = *it1;
+				auto key1 = keySelector1(value1);
+				for (auto it2 = e.begin(); it2 != e.end(); ++it2)
+				{
+					auto value2 = *it2;
+					auto key2 = keySelector2(value2);
+					if (key1 != key2) continue;
+
+					result->push_back(resultSelector(value1, value2));
+				}
+			}
+			return from_values(result);
 		}
 	};
 

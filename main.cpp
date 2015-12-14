@@ -32,15 +32,15 @@ void test()
 	}
 
 	{
-		vector<int> v = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-		int sum = 0;
+	vector<int> v = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	int sum = 0;
 
-		for (auto x : from(from(from(from(v)))))
-		{
-			sum += x;
-		}
-		assert(sum == 45);
+	for (auto x : from(from(from(from(v)))))
+	{
+		sum += x;
 	}
+	assert(sum == 45);
+}
 	//////////////////////////////////////////////////////////////////
 	// select
 	//////////////////////////////////////////////////////////////////
@@ -335,7 +335,24 @@ void test()
 		vector<int> a = { 5, 3, 1, 4, 8, 2, 7, 6, 9 };
 		vector<int> b = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		auto q = from(a).order_by([](int x) { return x; });
-		
+
 		assert(std::equal(b.begin(), b.end(), q.begin()));
+	}
+	//////////////////////////////////////////////////////////////////
+	//  join
+	//////////////////////////////////////////////////////////////////
+	{
+		vector<int> xs = { 1, 2, 3, 4, 5 };
+		vector<int> ys = { 3, 4, 5, 6, 7 };
+		vector<int> zs = { 9, 16, 25 };
+
+		auto query = from(xs).join(
+			from(ys),
+			[](int x) { return x; },
+			[](int x) { return x; },
+			[](int a, int b) { return std::make_tuple(a*a, b*b); });
+
+		auto ts = query.select([](const std::tuple<int, int> t) { return std::get<0>(t); });
+		assert(std::equal(zs.begin(), zs.end(), ts.begin()));
 	}
 }
